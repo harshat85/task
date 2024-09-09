@@ -1,0 +1,182 @@
+TERRAFORM WORK FLOW
+
+The Terraform workflow refers to the series of steps and processes involved in using Terraform to manage and provision infrastructure as code (IaC). 
+It enables you to define, provision, and manage your infrastructure resources across various cloud providers and on-premises environments in a declarative manner.
+
+Terraform init - initialize working directory
+Terraform validate -  validate the syntax and configuration of your Terraform files without actually applying or modifying any infrastructure
+Terraform plan - analyzes your configuration and compares it with the current state, identifying the changes necessary to achieve the desired state.
+Terraform Apply -  provisions the resources according to your configuration and updates the state file
+Terraform Destroy - tear down the infrastructure,reads the state file and destroys all the resources managed by Terraform.
+
+
+A Terraform flow chart is a diagram that shows the sequence of steps and decisions involved in the execution of Terraform configuration, illustrating the provisioning or modification of resources.
+
+############################################
+Terraform init
+Terraform plan
+Terraform apply
+Terraform validate         check your configuration for syntax errors,
+Terraform fmt   (file into a canonical format)
+Terraform show OR Terraform show -json
+Terraform providers
+Terraform providers mirror <DIR>
+Terraform output OR  Terraform output <>
+Terraform refresh
+Terraform graph
+
+Terraform destroy
+
+
+apt update
+apt install graphviz -y
+terraform graph | dot -Tsvg > graph.svg
+
+########
+destroy and recreate
+ - avoid the dependancy issues on the base (configurations driftes).
+ 
+ 
+########
+
+*
+resource "local_file" "pet" {
+	filename = "/root/pets.txt"
+	content = "we love people!"
+	file_permission "0700"
+		
+	lifecycle {
+	create_before_destroy = true
+	}
+}
+
+* prevent_destroy = true
+
+* ignore_changes = all
+
+*
+lifecycle {
+
+	ignore_changes = [
+	tags
+	
+	]
+}
+
+###########
+Read Only 
+
+data "local_file" "dog" {
+filename = "/root/dog.txt"
+}
+
+#############################################################################################3
+
+STATE FILE
+
+Terraform maintains a state file that represents the current state of your infrastructure. It's crucial to store this state file securely and update it after each apply or destroy operation. Terraform Cloud or a remote backend can be used for collaborative work.
+
+#############################################################################################
+############################################################################################
+
+3. Terraform Plan
+Run terraform plan to create an execution plan. This command analyzes your configuration and compares it with the current state, identifying the changes necessary to achieve the desired state. It provides an overview of what resources will be created, modified, or deleted. Now add terraform plan command you will see the execution plan by terraform.
+
+
+
+Terraform Apply
+Use Terraform apply to execute the plan and apply the changes to your infrastructure. Terraform prompts for confirmation before proceeding. Once confirmed, it provisions the resources according to your configuration and updates the state file. Now run terraform apply command you will see this as output and with a resource that you have mentioned.
+
+
+Terraform Destroy
+When you want to tear down the infrastructure, use Terraform destroy. This command reads the state file and destroys all the resources managed by Terraform. It’s important to exercise caution with this command as it permanently deletes resources.
+
+
+
+
+############################################################################################
+
+
+Terraform Code For Aws Provider and Terraform Block
+Create a main.tf file and add this code to practice the Workflow mentioned above
+
+terraform {
+  required_providers {
+    aws = {
+      source = "hashicorp/aws"
+      version = "4.45.0"
+    }
+  }
+}
+provider "aws" {
+  region  = "us-east-1" #The region where the environment #is going to be deployed # Use your own region here
+  access_key = "" # Enter AWS IAM 
+  secret_key = "" # Enter AWS IAM 
+}
+resource "aws_ecr_repository" "app_ecr_repo" {
+  name = "app-repo"
+}
+
+
+AWS Elastic Container Registry (ECR) repository resource named “app_ecr_repo”. It creates a repository in AWS ECR with the name “app-repo”. ECR repositories are used to store and manage Docker container images.
+
+
+
+
+
+Creating a Kubernetes cluster using Terraform 
+############################################################################################
+
+Install Terraform:
+Write Terraform Configuration:                  Create a Terraform configuration file (e.g., main.tf)  that defines your Kubernetes cluster.
+												provider "aws" {
+												region = "us-west-2"
+												}
+												
+												resource "random_id" "cluster_name" {
+												byte_length = 4
+												}
+												
+												resource "null_resource" "create_cluster" {
+												provisioner "local-exec" {
+													command = "kops create cluster --cloud=aws --zones=us-west-2a,us-west-2b,us-west-2c --node-count=3 --node-size=t2.micro --name=k8s-cluster-${random_id.cluster_name.hex}.k8s.local --yes"
+												}
+												}
+												
+Initialize Terraform: terraform init
+Apply Terraform Configuration: terraform apply
+Verify Cluster Status:
+Access the Cluster: kubectl get nodes
+Destroy the Cluster (Optional): terraform destroy
+
+
+############################################################################################
+Systems Applications and Products in Data Processing (SAP)
+
+Pacemaker is a Cluster Resource Manager (CRM) that help running a service in a high availability mode. 
+CMAN
+Corosync configuration
+
+Cluster Resource Manager:
+A cluster resource manager, like Pacemaker, is responsible for coordinating and managing resources across multiple nodes in a cluster. These resources can include services, applications, IP addresses, file systems, and more.
+
+High Availability (HA):
+The primary goal of Pacemaker is to ensure high availability of services. It achieves this by monitoring the health of resources and automatically moving or restarting them on different nodes in the cluster if a failure is detected.
+
+Resource Agents:
+Resources in Pacemaker are managed by resource agents. These are scripts or programs that understand how to start, stop, monitor, and recover a specific type of resource. Pacemaker supports a variety of resource agents for different types of services and applications.
+
+Resource Constraints:
+Pacemaker allows you to define constraints and rules to control how resources are managed within the cluster. For example, you can specify which resources should run on the same node or ensure that certain resources have higher priority in case of failover.
+
+Node Health Monitoring:
+Pacemaker monitors the health of individual nodes in the cluster. If a node becomes unresponsive or fails, Pacemaker can take actions to relocate resources to other healthy nodes.
+
+Quorum:
+Pacemaker uses a concept called quorum to ensure that only a majority of nodes in the cluster can make decisions. This helps prevent split-brain scenarios where nodes might operate independently, causing data inconsistencies.
+
+Fencing:
+Fencing is a mechanism used in clustered environments to isolate or fence off malfunctioning nodes to prevent them from causing further harm. Pacemaker can integrate with fencing mechanisms to ensure the integrity of the cluster.
+
+Integration with Other Technologies:
+Pacemaker is often used in conjunction with other technologies like the Corosync messaging layer and the Heartbeat daemon to enable communication and coordination between nodes in the cluster.
